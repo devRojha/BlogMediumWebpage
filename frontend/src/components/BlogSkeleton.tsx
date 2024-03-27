@@ -1,4 +1,4 @@
-import { Avataar } from "./Avataar"
+
 import { BlogBar } from "./BlogBar"
 
 

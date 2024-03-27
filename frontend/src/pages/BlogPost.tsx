@@ -7,6 +7,7 @@ import { BackendUrl } from "../config";
 export const BlogPost = ()=>{
     const [title , setTitle] = useState("");
     const [content , setContent] = useState("");
+
     const Published = ()=>{
         axios.post(`${BackendUrl}/api/v1/blog`, {
             title: title,
@@ -17,6 +18,7 @@ export const BlogPost = ()=>{
             }
         })
         .then(response => {
+            console.log(response.data);
             alert("Post Published")
         })
         .catch(error => {
