@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { blogInput, updateBlogInput } from '@devraj04/medium-common';
+import { date } from "zod";
 
 export const blogRouter = new Hono<{
     Bindings: {
@@ -29,11 +30,14 @@ export const blogRouter = new Hono<{
     }).$extends(withAccelerate())
     try{
       const authorId = c.get('authorId');
+      const d = new Date();
+      let dinank = d.toString().split(" ")[1] + " " +d.toString().split(" ")[2] + " " + d.toString().split(" ")[3];
       const cont = await prisma.post.create({
         data:{
           title: body.title,
           content: body.content,
-          authorId: authorId  //need to take from c
+          published: dinank,
+          authorId: authorId  //need to take from middleware
         }
       })
       console.log(cont);
@@ -82,8 +86,20 @@ export const blogRouter = new Hono<{
     }).$extends(withAccelerate())
     try{
       //Todo: need add pagination
-      const blogs = await prisma.post.findMany() //all post
-      console.log(blogs); 
+      const blogs = await prisma.post.findMany({
+        select:{
+          id: true,
+          authorId: true,
+          content: true,
+          title: true,
+          published:true,
+          author:{
+            select:{
+              name:true
+            }
+          }
+        }
+      })
       c.status(200);
       return c.json({response: blogs})
     }
@@ -101,6 +117,18 @@ export const blogRouter = new Hono<{
       const blog = await prisma.post.findFirst({
         where:{
           id: id
+        },
+        select:{
+          id:true,
+          authorId:true,
+          title:true,
+          content:true,
+          published:true,
+          author:{
+            select:{
+              name:true
+            }
+          }
         }
       })
       console.log(blog); 

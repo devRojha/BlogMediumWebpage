@@ -16,7 +16,8 @@ export const userRouter = new Hono<{
 
 //signup route
 userRouter.post('/signup', async (c) => {
-    const body = await c.req.json();
+  const body = await c.req.json();
+  console.log(body);
     //zod validation
     const { success } = signupInput.safeParse(body);
     if(!success){
