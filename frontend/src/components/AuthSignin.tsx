@@ -18,11 +18,14 @@ export const AuthSignin = ()=>{
                 password: signinInputs.password
             }) 
             const token = response.data.token;
+            const name = response.data.name;
             localStorage.setItem("authorization",token);
-            navigate("/blogs/")  //go to blog
+            localStorage.setItem("name",name);
+            navigate("/blogs/")  //go to blogs
         }
         catch(e){
             // alert user that request failed
+            console.log(e);
             alert("error while signin")
 
         }

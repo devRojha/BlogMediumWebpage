@@ -47,12 +47,13 @@ userRouter.post('/signup', async (c) => {
             },
           })
           console.log(person);
+
           const payload = {
             id : person.id
           }
           const token = await sign(payload , c.env.JWT_SECRET);
           c.status(200);
-          return c.json({token:token})
+          return c.json({token:token, name:person.name})
         }
         else{
           const person = await prisma.user.create({
@@ -103,7 +104,7 @@ userRouter.post('/signup', async (c) => {
             }
             const token = await sign(payload , c.env.JWT_SECRET);
             c.status(200);  
-            return c.json({msg:"logged in",token:token})
+            return c.json({msg:"logged in",token:token, name:isexist.name})
         }
         else{
             c.status(404);

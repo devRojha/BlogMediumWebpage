@@ -5,6 +5,10 @@ import { useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 export const BlogBar = ()=>{
     const navigate = useNavigate();
+    const name = localStorage.getItem("name") || "";
+    if(!name){
+        navigate("/")
+    }
     return(
         <div className="flex justify-center w-full  mb-8">
             <div className="flex justify-between w-full shadow-lg rounded-md h-12 d space-x-4 pl-4">
@@ -27,10 +31,13 @@ export const BlogBar = ()=>{
                     <div className="flex flex-col justify-center">
                         <button className="active:text-blue-600 text-2xl border-slate-500 active:border-blue-600 active:border-b hover:border-b h-full"><HiOutlineBell /></button>
                     </div>
-                    <button className="active:text-blue-600 border-slate-500 active:border-blue-600 active:border-b hover:border-b">Log Out</button>
+                    <button onClick={()=>{
+                        localStorage.clear();
+                        navigate("/");
+                        }} className="active:text-blue-600 border-slate-500 active:border-blue-600 active:border-b hover:border-b">Log Out</button>
                     <div className="flex flex-col justify-center">
                         <Avataar 
-                            authorName={"Devraj"}
+                            authorName={name}
                         />
                     </div>
                 </div>

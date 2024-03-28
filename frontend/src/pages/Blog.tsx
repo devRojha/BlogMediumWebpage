@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import axios from "axios";
 import { BackendUrl } from "../config";
-import { useParams } from "react-router-dom";   
+import { useNavigate, useParams } from "react-router-dom";   
 import { BlogBar } from "../components/BlogBar";
 import { Avataar } from "../components/Avataar";
 import { BlogSkaleton } from "../components/BlogSkeleton";
@@ -11,7 +11,7 @@ interface BlogType {
     authorId:string,
     title:string,
     content:string,
-    published:string,
+    publishedDate:string,
     author:{
         name:string
     }
@@ -20,6 +20,13 @@ interface BlogType {
 export const Blog = ()=>{
     const[blog , setBlog] = useState <BlogType | null>(null);
     const { id } = useParams<{ id: string }>(); // Get id from URL
+    const navigate = useNavigate();
+    useEffect(()=>{
+        const token  = localStorage.getItem("authorization");
+        if(!token){
+            navigate("/")
+        }
+    },[localStorage.getItem("authorization")])
     useEffect(()=>{
         axios(`${BackendUrl}/api/v1/blog/${id}`,{
             headers:{
@@ -40,7 +47,7 @@ export const Blog = ()=>{
                 <div className="col-span-3">
                     <div className="flex flex-col p-4">
                         <div className="text-3xl font-bold mb-2">{blog.title}</div>
-                        <div className="text-md font-semibold mb-3 text-slate-400">{`Published on ${(blog.published == "false")?"oct 4 2003": blog.published}`}</div>
+                        <div className="text-md font-semibold mb-3 text-slate-400">{`Published on ${(blog.publishedDate == "false")?"oct 4 2003": blog.publishedDate}`}</div>
                         <div className="text-md mb-3 text-black">{blog.content}</div>
                     </div>
                 </div>

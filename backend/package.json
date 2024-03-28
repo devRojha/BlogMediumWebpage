@@ -4,7 +4,7 @@
     "deploy": "wrangler deploy --minify src/index.ts"
   },
   "dependencies": {
-    "@devraj04/medium-common": "^1.1.0",
+    "@devraj04/medium-common": "^1.2.0",
     "@prisma/client": "^5.10.2",
     "@prisma/extension-accelerate": "^1.0.0",
     "cors": "^2.8.5",

@@ -1,17 +1,25 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { PostBar } from "../components/PostBar"
 import axios from "axios";
 import { BackendUrl } from "../config";
+import { useNavigate } from "react-router-dom";
 
 
 export const BlogPost = ()=>{
     const [title , setTitle] = useState("");
     const [content , setContent] = useState("");
-
+    const navigate = useNavigate();
+    useEffect(()=>{
+        const token  = localStorage.getItem("authorization");
+        if(!token){
+            navigate("/")
+        }
+    },[localStorage.getItem("authorization")])
     const Published = ()=>{
         axios.post(`${BackendUrl}/api/v1/blog`, {
             title: title,
-            content: content
+            content: content,
+            published: "true"
         },{
             headers:{
                 Authorization: localStorage.getItem("authorization")
@@ -28,7 +36,7 @@ export const BlogPost = ()=>{
     }
     return(
         <div>
-            <PostBar/>
+            <PostBar title={title} content={content} />
             <div className="flex justify-center">
                 <div className="flex flex-col justify-center w-[80%] h-screen">
                     {/* text editer logic */}

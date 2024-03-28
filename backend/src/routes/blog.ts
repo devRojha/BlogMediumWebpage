@@ -3,7 +3,6 @@ import { Hono } from 'hono'
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { blogInput, updateBlogInput } from '@devraj04/medium-common';
-import { date } from "zod";
 
 export const blogRouter = new Hono<{
     Bindings: {
@@ -15,7 +14,7 @@ export const blogRouter = new Hono<{
     },
   }>();
 
-
+  // post blog
   blogRouter.post('/',authMiddleware, async (c) => {
     const body = await c.req.json();
     //zod validation
@@ -36,7 +35,8 @@ export const blogRouter = new Hono<{
         data:{
           title: body.title,
           content: body.content,
-          published: dinank,
+          publishedDate: dinank,
+          published: body.published,
           authorId: authorId  //need to take from middleware
         }
       })
@@ -49,6 +49,7 @@ export const blogRouter = new Hono<{
     }
   })
   
+  // update blog
   blogRouter.put('/',authMiddleware, async (c) => {
     const body = await c.req.json();
     //zod validation
@@ -67,7 +68,8 @@ export const blogRouter = new Hono<{
         },
         data:{
           title: body.title,
-          content: body.content
+          content: body.content,
+          published: body.published
         }
       })
       console.log(cont);
@@ -80,19 +82,59 @@ export const blogRouter = new Hono<{
     }
   })
 
-  blogRouter.get('/bulk',authMiddleware, async (c) => {
+  blogRouter.get('/bulk', async (c) => {
     const prisma = new PrismaClient({
       datasourceUrl: c.env.DATABASE_URL,
     }).$extends(withAccelerate())
     try{
       //Todo: need add pagination
       const blogs = await prisma.post.findMany({
+        where:{
+          published: "true"
+        },
         select:{
           id: true,
           authorId: true,
           content: true,
           title: true,
           published:true,
+          publishedDate:true,
+          author:{
+            select:{
+              name:true
+            }
+          }
+        }
+      })
+      c.status(200);
+      return c.json({response: blogs})
+    }
+    catch(e){
+      return c.json({error: "error while fetching"})
+    }
+  })
+
+  // get all blog of a author
+  blogRouter.get('/author',authMiddleware, async (c) => {
+    const prisma = new PrismaClient({
+      datasourceUrl: c.env.DATABASE_URL,
+    }).$extends(withAccelerate())
+
+    try{
+      //Todo: need add pagination
+      const authorId = c.get('authorId');
+      const blogs = await prisma.post.findMany({
+        where:{
+          authorId: authorId,
+          published: "true"
+        },
+        select:{
+          id: true,
+          authorId: true,
+          content: true,
+          title: true,
+          published:true,
+          publishedDate:true,
           author:{
             select:{
               name:true
@@ -108,6 +150,43 @@ export const blogRouter = new Hono<{
     }
   })
   
+  // get draft blog of a author
+  blogRouter.get('/draft',authMiddleware, async (c) => {
+    const prisma = new PrismaClient({
+      datasourceUrl: c.env.DATABASE_URL,
+    }).$extends(withAccelerate())
+
+    try{
+      //Todo: need add pagination
+      const authorId = c.get('authorId');
+      const blogs = await prisma.post.findMany({
+        where:{
+          authorId: authorId,
+          published: "false"
+        },
+        select:{
+          id: true,
+          authorId: true,
+          content: true,
+          title: true,
+          published:true,
+          publishedDate:true,
+          author:{
+            select:{
+              name:true
+            }
+          }
+        }
+      })
+      c.status(200);
+      return c.json({response: blogs})
+    }
+    catch(e){
+      return c.json({error: "error while fetching"})
+    }
+  })
+
+  // get blog of with id
   blogRouter.get('/:id',authMiddleware, async (c) => {
     const prisma = new PrismaClient({
       datasourceUrl: c.env.DATABASE_URL,
@@ -115,6 +194,41 @@ export const blogRouter = new Hono<{
     try{
       const id = c.req.param("id");
       const blog = await prisma.post.findFirst({
+        where:{
+          id: id,
+        },
+        select:{
+          id:true,
+          authorId:true,
+          title:true,
+          content:true,
+          published:true,
+          publishedDate:true,
+          author:{
+            select:{
+              name:true
+            }
+          }
+        }
+      })
+      console.log(blog); 
+      c.status(200);
+      return c.json({response: blog})
+    }
+    catch(e){
+      c.status(411);
+      return c.json({error: "error while fetching blog post"})
+    }
+  }) 
+
+  //delete a blog of a id
+  blogRouter.delete('/:id',authMiddleware, async (c) => {
+    const prisma = new PrismaClient({
+      datasourceUrl: c.env.DATABASE_URL,
+    }).$extends(withAccelerate())
+    try{
+      const id = c.req.param("id");
+      const blog = await prisma.post.delete({
         where:{
           id: id
         },
@@ -140,4 +254,3 @@ export const blogRouter = new Hono<{
       return c.json({error: "error while fetching blog post"})
     }
   }) 
-  

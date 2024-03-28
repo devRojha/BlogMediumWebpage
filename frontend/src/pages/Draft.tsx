@@ -1,33 +1,91 @@
-import { Avataar } from "./Avataar"
-import { HiOutlineBell } from "react-icons/hi";
-import { IoIosMore } from "react-icons/io";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { IoArrowBack } from "react-icons/io5";
-import axios from "axios";
 import { BackendUrl } from "../config";
-export const PostBar = ({title , content}:{title:string , content:string})=>{
-    const navigate = useNavigate();
-    const name = localStorage.getItem("name") || "";
-    if(!name){
-        navigate("/")
+import axios from "axios";
+import { IoArrowBack } from "react-icons/io5";
+import { BlogsSkaleton } from "../components/Skeleton";
+import { Avataar } from "../components/Avataar";
+import { IoIosMore } from "react-icons/io";
+import { HiOutlineBell } from "react-icons/hi";
+import { DraftCard } from "../components/DraftCard";
+
+interface Blog{
+    id:string,
+    authorId:string,
+    content: string,
+    title: string,
+    published: string,
+    publishedDate: string,
+    author: {
+        name: string,
     }
-    const Saved = ()=>{
-        axios.post(`${BackendUrl}/api/v1/blog`, {
-            title: title,
-            content: content,
-        },{
+}
+
+export const Draft = ()=>{
+    const [blogs , setBlogs] = useState<Blog[]| null>(null);
+    const navigate = useNavigate();
+    useEffect(()=>{
+        const token  = localStorage.getItem("authorization");
+        if(!token){
+            navigate("/")
+        }
+    },[localStorage.getItem("authorization")])
+
+    useEffect(()=>{
+        axios(`${BackendUrl}/api/v1/blog/draft`,{
             headers:{
                 Authorization: localStorage.getItem("authorization")
             }
-        })
-        .then(response => {
-            console.log(response.data);
-            alert("Post saved to draft")
-        })
-        .catch(error => {
-            // Handle error
-            console.error("Error publishing:", error);
-        });
+        }) 
+            .then(res => {
+                setBlogs(res.data.response);
+            })
+    },[])
+
+    if(!blogs){
+        return(
+            <div className="flex justify-center w-full">
+                <div className="flex flex-col w-full">
+                    <PostBar1 />
+                    <BlogsSkaleton />
+                    <BlogsSkaleton />
+                    <BlogsSkaleton />
+                    <BlogsSkaleton />
+                    <BlogsSkaleton />
+                    <BlogsSkaleton />
+                </div>
+            </div>
+        )
+    }
+
+    return(
+        <div className="flex justify-center w-full">
+        <div className="flex flex-col w-full">
+            <PostBar1 />
+            {blogs.map(blog=> { 
+                return(<DraftCard
+                        key={blog.id}
+                        id={blog.id}
+                        authorName={blog.author.name || "Anonyous"}
+                        title = {blog.title}
+                        content={blog.content}
+                        publishedDate={(blog.publishedDate == "false")?"04/10/2003" : blog.publishedDate}
+                    />
+                )
+            })}
+        </div>
+    </div>
+    )
+}
+
+
+
+const PostBar1 = ()=>{
+    const navigate = useNavigate();
+    
+    const name = localStorage.getItem("name") || "";
+    if(!name){
+        navigate("/")
     }
     return(
         <div className="flex justify-center w-full  mb-8">
@@ -48,7 +106,6 @@ export const PostBar = ({title , content}:{title:string , content:string})=>{
                             navigate("/draft");
                         }} className="h-full  border-slate-500 active:border-blue-600 active:border-b hover:border-b active:text-blue-600 text-slate-400 font-semibold">Draft</button>
                     </div>
-                    <button onClick={Saved} className="h-full  border-slate-500 active:border-blue-600 active:border-b hover:border-b active:text-blue-600 text-slate-400 font-semibold">Saved</button>
                 </div>
                 <div className="flex justify-center space-x-4 text-slate-600">
                     <div className="flex flex-col justify-center">
@@ -68,7 +125,7 @@ export const PostBar = ({title , content}:{title:string , content:string})=>{
                         navigate("/");
                         }} className="active:text-blue-600 border-slate-500 active:border-blue-600 active:border-b hover:border-b">Log Out</button>
                     <div className="flex flex-col justify-center">
-                        <Avataar 
+                        <Avataar
                             authorName={name}
                         />
                     </div>

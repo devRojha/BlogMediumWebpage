@@ -8,6 +8,7 @@ interface Blog{
     content: string,
     title: string,
     published: string,
+    publishedDate:string,
     author: {
         name: string,
     }
@@ -42,7 +43,6 @@ interface BlogType {
     author:{
         name:string
     }
-
 }
 
 export const useBlog = ({id}:{id:string})=>{

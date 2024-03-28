@@ -1,7 +1,7 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Avataar } from "./Avataar"
-import axios from "axios";
-import { BackendUrl } from "../config";
+import axios from "axios"
+import { BackendUrl } from "../config"
 
  
 interface BlogCardProps {
@@ -10,10 +10,10 @@ interface BlogCardProps {
     title: string,
     content: string,
     publishedDate: string,
-    forYou: boolean
 }
 
- export const BlogCard = ({authorName, title, content, publishedDate , id, forYou}: BlogCardProps)=>{
+ export const DraftCard = ({authorName, title, content, publishedDate , id}: BlogCardProps)=>{
+    const navigate = useNavigate();
     const DeleteData = ()=>{
         axios.delete(`${BackendUrl}/api/v1/blog/${id}`,{
             headers:{
@@ -22,7 +22,25 @@ interface BlogCardProps {
         })
         .then(res => {
             console.log(res.data)
-            alert("Post Deleted")
+            navigate("/draft")
+        });
+    }
+    const Published = ()=>{
+        axios.put(`${BackendUrl}/api/v1/blog`, {
+            id: id,
+            published: "true"
+        },{
+            headers:{
+                Authorization: localStorage.getItem("authorization"),
+            }
+        })
+        .then(response => {
+            console.log(response.data);
+            alert("Post Published")
+        })
+        .catch(error => {
+            // Handle error
+            console.error("Error publishing:", error);
         });
     }
     return(
@@ -43,8 +61,9 @@ interface BlogCardProps {
                         {`${Math.ceil(content.length / 100)} minutes `}
                     </div>
                 </Link>
-                <div className={`${(forYou)? "flex": "hidden"}`}>
-                    <button onClick={DeleteData} className={`border p-2 m-2 ml-0 rounded-lg bg-red-500 text-white hover:bg-red-800 active:text-black`}>Delete</button>
+                <div className="flex">
+                    <button onClick={Published} className="border p-2 m-2 ml-0 rounded-lg bg-green-500 text-white hover:bg-green-800 active:text-black">Publish</button>
+                    <button onClick={DeleteData} className="border p-2 m-2 rounded-lg bg-red-500 text-white hover:bg-red-800 active:text-black">Delete</button>
                 </div>
                 <div className="flex justify-center border border-slate-200"></div>
             </div>
