@@ -24,6 +24,7 @@ export const Blogs= ()=>{
     const [blogs , setBlogs] = useState<Blog[]| null>(null);
     useEffect(()=>{
         if(forYou == false){
+            setBlogs(null);
             axios(`${BackendUrl}/api/v1/blog/bulk`,{
                 headers:{
                     Authorization: localStorage.getItem("authorization")
