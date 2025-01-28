@@ -10,7 +10,8 @@
     "cors": "^2.8.5",
     "hono": "^4.0.10",
     "jsonwebtoken": "^9.0.2",
-    "prisma": "^5.10.2"
+    "prisma": "^5.10.2",
+    "typescript": "^5.5.2"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240208.0",

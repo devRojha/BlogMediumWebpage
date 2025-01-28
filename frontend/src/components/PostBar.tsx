@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 import axios from "axios";
 import { BackendUrl } from "../config";
-export const PostBar = ({title , content}:{title:string , content:string})=>{
+export const PostBar = ({title , content, setTitle, setContent}:{title:string , content:string, setTitle: (value: string) => void; setContent: (value: string) => void;})=>{
     const navigate = useNavigate();
     const name = localStorage.getItem("name") || "";
     if(!name){
@@ -22,7 +22,9 @@ export const PostBar = ({title , content}:{title:string , content:string})=>{
         })
         .then(response => {
             console.log(response.data);
-            alert("Post saved to draft")
+            setTitle("");
+            setContent("");
+            alert("Post saved to draft");
         })
         .catch(error => {
             // Handle error
